@@ -3,7 +3,7 @@ const getTimeStamp = async (z, bundle) => {
     url: 'https://api.clockworkrecruiting.com/v1/{firm_subdomain}/support/timestamp',
     method: 'GET'
   })
-  return {id:'ok'}
+  return {id: 'ok'}
 }
 
 module.exports = {
@@ -22,7 +22,7 @@ module.exports = {
     outputFields: [],
     perform: getTimeStamp,
     sample: {
-      id:123
+      id: 123
     }
   }
-};
+}

@@ -4,13 +4,13 @@ const getUpdatedPeople = async (z, bundle) => {
   let response = await z.request({
     url: 'https://api.clockworkrecruiting.com/v1/{firm_subdomain}/people',
     method: 'GET',
-    params:{
+    params: {
       detail: 'full',
-      sort: '-updatedAt' 
+      sort: '-updatedAt'
     }
   })
   let people = response.data.people.records
-  let mappedResponse = _.map(people, (person)=>{
+  let mappedResponse = _.map(people, (person) => {
     person.contactId = person.id
     person.id = person.id + person.updatedAt
     return person
@@ -79,12 +79,12 @@ module.exports = {
       },
       {
         key: 'id',
-        label:'updatedId',
+        label: 'updatedId',
         type: 'string'
       },
       {
         key: 'contactId',
-        label:'id',
+        label: 'id',
         type: 'string'
       },
       {
@@ -220,4 +220,4 @@ module.exports = {
       workPhoneNumber: null
     }
   }
-};
+}

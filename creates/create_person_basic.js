@@ -1,33 +1,81 @@
-// "Create" stub created by 'zapier convert'. This is just a stub - you will need to edit!
-const { replaceVars } = require('../utils');
+const getPerson = async (z, bundle, id) => {
+  let response = await z.request({
+    url: `https://api.clockworkrecruiting.com/v1/{firm_subdomain}/people/${id}`,
+    method: 'GET',
+    params: {
+      detail: 'full'
+    }
+  })
 
-const makeRequest = (z, bundle) => {
-  const scripting = require('../scripting');
-  const legacyScriptingRunner = require('zapier-platform-legacy-scripting-runner')(scripting);
+  return response
+}
 
-  bundle._legacyUrl = 'https://api.clockworkrecruiting.com/v1/{{firm_subdomain}}/people';
-  bundle._legacyUrl = replaceVars(bundle._legacyUrl, bundle);
+const searchPerson = async (z, bundle, id) => {
+  let response = await z.request({
+    url: `https://api.clockworkrecruiting.com/v1/{firm_subdomain}/people/${encodeURIComponent(bundle.inputData.emailAddress)}`,
+    method: 'GET',
+    params: {
+      detail: 'full'
+    }
+  })
 
-  // Do a _pre_write() from scripting.
-  const preWriteEvent = {
-    name: 'create.pre',
-    key: 'create_person_basic'
-  };
-  return legacyScriptingRunner
-    .runEvent(preWriteEvent, z, bundle)
-    .then(preWriteResult => z.request(preWriteResult))
-    .then(response => {
-      response.throwForStatus();
+  return response
+}
 
-      // Do a _post_write() from scripting.
-      const postWriteEvent = {
-        name: 'create.post',
-        key: 'create_person_basic',
-        response
-      };
-      return legacyScriptingRunner.runEvent(postWriteEvent, z, bundle);
-    });
-};
+const createPerson = async (z, bundle) => {
+  let body = JSON.parse(JSON.stringify(bundle.inputData))
+
+  if (bundle.inputData.address_street !== undefined) {
+    var addresses = []
+    var address = {}
+    address.street = bundle.inputData.address_street
+
+    if (bundle.inputData.address_location !== undefined) {
+      address.location = bundle.inputData.address_location
+    }
+
+    if (bundle.inputData.address_street2 !== undefined) {
+      address.street2 = bundle.inputData.address_street2
+    }
+
+    if (bundle.inputData.home_address_city !== undefined) {
+      address.city = bundle.inputData.address_city
+    }
+
+    if (bundle.inputData.address_state !== undefined) {
+      address.state = bundle.inputData.address_state
+    }
+
+    if (bundle.inputData.address_postal_code !== undefined) {
+      address.postalCode = bundle.inputData.address_postal_code
+    }
+
+    if (bundle.inputData.address_country !== undefined) {
+      address.country = bundle.inputData.address_country
+    }
+
+    addresses.push(address)
+    body.addresses = addresses
+  }
+  let url = 'https://api.clockworkrecruiting.com/v1/{firm_subdomain}/people'
+  let search = await searchPerson(z, bundle)
+  if (search.status === 200 && bundle.inputData.update_create) {
+    url += '/' + search.json.data.person.id
+  } else {
+    throw new z.HaltedError('Person with email exists with the given email and update if found is set to no.')
+  }
+
+  let response = await z.request({
+    url: url,
+    method: 'POST',
+    json: body
+  })
+
+  let id = response.json.data.person.id
+
+  let fullDetailResponse = await getPerson(z, bundle, id)
+  return fullDetailResponse
+}
 
 module.exports = {
   key: 'create_person_basic',
@@ -344,7 +392,7 @@ module.exports = {
         type: 'string'
       }
     ],
-    perform: makeRequest,
+    perform: createPerson,
     sample: {
       address: '2030 Franklin St, Suite 202, Oakland, CA, 94612',
       emailAddress: 'christian@clockworkrecruiting.com',
@@ -381,4 +429,4 @@ module.exports = {
       workPhoneNumber: '(510) 629-4494'
     }
   }
-};
+}

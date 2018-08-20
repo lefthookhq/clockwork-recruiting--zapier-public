@@ -1,35 +1,141 @@
-// "Create" stub created by 'zapier convert'. This is just a stub - you will need to edit!
-const {
-  replaceVars
-} = require('../utils')
+const getPerson = async (z, bundle, id) => {
+  let response = await z.request({
+    url: `https://api.clockworkrecruiting.com/v1/{firm_subdomain}/people/${id}`,
+    method: 'GET',
+    params: {
+      detail: 'full'
+    }
+  })
 
-const makeRequest = (z, bundle) => {
-  const scripting = require('../scripting')
-  const legacyScriptingRunner = require('zapier-platform-legacy-scripting-runner')(scripting)
+  return response
+}
 
-  bundle._legacyUrl = 'https://api.clockworkrecruiting.com/v1/{{firm_subdomain}}/people'
-  bundle._legacyUrl = replaceVars(bundle._legacyUrl, bundle)
+const searchPerson = async (z, bundle, id) => {
+  let response = await z.request({
+    url: `https://api.clockworkrecruiting.com/v1/{firm_subdomain}/people/${encodeURIComponent(bundle.inputData.emailAddress)}`,
+    method: 'GET',
+    params: {
+      detail: 'full'
+    }
+  })
 
-  // Do a _pre_write() from scripting.
-  const preWriteEvent = {
-    name: 'create.pre',
-    key: 'create_person'
+  return response
+}
+
+const createPerson = async (z, bundle) => {
+  let body = JSON.parse(JSON.stringify(bundle.inputData))
+
+  var addresses = []
+
+  //check for address fields for home address
+  if (bundle.inputData.home_address_street1 !== undefined) {
+    var homeAddress = {}
+    homeAddress.street = bundle.inputData.home_address_street1
+    homeAddress.location = 'home';
+
+    if (bundle.inputData.home_address_street2 !== undefined) {
+      homeAddress.street2 = bundle.inputData.home_address_street2
+    }
+
+    if (bundle.inputData.home_address_city !== undefined) {
+      homeAddress.city = bundle.inputData.home_address_city
+    }
+
+    if (bundle.inputData.home_address_state !== undefined) {
+      homeAddress.state = bundle.inputData.home_address_state
+    }
+
+    if (bundle.inputData.home_address_postal_code !== undefined) {
+      homeAddress.postalCode = bundle.inputData.home_address_postal_code
+    }
+
+    if (bundle.inputData.home_address_country !== undefined) {
+      homeAddress.country = bundle.inputData.home_address_country
+    }
+
+    addresses.push(homeAddress)
   }
-  return legacyScriptingRunner
-    .runEvent(preWriteEvent, z, bundle)
-    .then(preWriteResult => z.request(preWriteResult))
-    .then(response => {
-      response.throwForStatus()
+  // check for address fields for work address
+  if (bundle.inputData.work_address_street1 !== undefined) {
+    var workAddress = {}
+    workAddress.street = bundle.inputData.work_address_street1
+    workAddress.location = 'work';
 
-      // Do a _post_write() from scripting.
-      const postWriteEvent = {
-        name: 'create.post',
-        key: 'create_person',
-        response
-      }
-      return legacyScriptingRunner.runEvent(postWriteEvent, z, bundle)
-    })
-};
+    if (bundle.inputData.work_address_street2 !== undefined) {
+      workAddress.street2 = bundle.inputData.work_address_street2
+    }
+
+    if (bundle.inputData.work_address_city !== undefined) {
+      workAddress.city = bundle.inputData.work_address_city
+    }
+
+    if (bundle.inputData.work_address_state !== undefined) {
+      workAddress.state = bundle.inputData.work_address_state
+    }
+
+    if (bundle.inputData.work_address_postal_code !== undefined) {
+      workAddress.postalCode = bundle.inputData.home_address_postal_code
+    }
+
+    if (bundle.inputData.work_address_country !== undefined) {
+      workAddress.country = bundle.inputData.work_address_country
+    }
+
+    addresses.push(workAddress)
+  }
+  // check for address fields for other address
+  if (bundle.inputData.other_address_street1 !== undefined) {
+    var otherAddress = {}
+    otherAddress.street = bundle.inputData.other_address_street1
+    otherAddress.location = 'other';
+
+    if (bundle.inputData.other_address_street2 !== undefined) {
+      otherAddress.street2 = bundle.inputData.other_address_street2
+    }
+
+    if (bundle.inputData.other_address_city !== undefined) {
+      otherAddress.city = bundle.inputData.other_address_city
+    }
+
+    if (bundle.inputData.other_address_state !== undefined) {
+      otherAddress.state = bundle.inputData.other_address_state
+    }
+
+    if (bundle.inputData.other_address_postal_code !== undefined) {
+      otherAddress.postalCode = bundle.inputData.other_address_postal_code
+    }
+
+    if (bundle.inputData.other_address_country !== undefined) {
+      otherAddress.country = bundle.inputData.other_address_country
+    }
+
+    addresses.push(otherAddress)
+  }
+
+  if (addresses.length !== 0) {
+    body.addresses = addresses
+  }
+
+  let url = 'https://api.clockworkrecruiting.com/v1/{firm_subdomain}/people'
+  let search = await searchPerson(z, bundle)
+  // may not throw the correct error.
+  if (search.status === 200 && bundle.inputData.update_create) {
+    url += '/' + search.json.data.person.id
+  } else {
+    throw new z.HaltedError('Person with email exists with the given email and update if found is set to no.')
+  }
+
+  let response = await z.request({
+    url: url,
+    method: 'POST',
+    json: body
+  })
+
+  let id = response.json.data.person.id
+
+  let fullDetailResponse = await getPerson(z, bundle, id)
+  return fullDetailResponse
+}
 
 module.exports = {
   key: 'create_person',
@@ -458,7 +564,7 @@ module.exports = {
       type: 'string'
     }
     ],
-    perform: makeRequest,
+    perform: createPerson,
     sample: {
       address: '2030 Franklin St, Suite 202, Oakland, CA, 94612',
       emailAddress: 'christian@clockworkrecruiting.com',

@@ -1,11 +1,11 @@
-const getAttachment = async (z, bundle)=>{
+const getAttachment = async (z, bundle) => {
   let response = await z.request({
     url: bundle.inputData.url,
     method: 'GET'
   })
 
-  return response.data.person.id
-} 
+  return response.data.person
+}
 
 const addAttachment = async (z, bundle) => {
   let response = await z.request({
@@ -13,35 +13,36 @@ const addAttachment = async (z, bundle) => {
     method: 'POST'
   })
 
+  return ''
 }
 
 const makeRequest = (z, bundle) => {
-  const scripting = require('../scripting');
-  const legacyScriptingRunner = require('zapier-platform-legacy-scripting-runner')(scripting);
+  const scripting = require('../scripting')
+  const legacyScriptingRunner = require('zapier-platform-legacy-scripting-runner')(scripting)
 
-  bundle._legacyUrl = 'https://api.clockworkrecruiting.com/v1/{{firm_subdomain}}/people/{{person_id}}';
-  bundle._legacyUrl = replaceVars(bundle._legacyUrl, bundle);
+  bundle._legacyUrl = 'https://api.clockworkrecruiting.com/v1/{{firm_subdomain}}/people/{{person_id}}'
+  bundle._legacyUrl = replaceVars(bundle._legacyUrl, bundle)
 
   // Do a _pre_write() from scripting.
   const preWriteEvent = {
     name: 'create.pre',
     key: 'add_attachment'
-  };
+  }
   return legacyScriptingRunner
     .runEvent(preWriteEvent, z, bundle)
     .then(preWriteResult => z.request(preWriteResult))
     .then(response => {
-      response.throwForStatus();
+      response.throwForStatus()
 
       // Do a _post_write() from scripting.
       const postWriteEvent = {
         name: 'create.post',
         key: 'add_attachment',
         response
-      };
-      return legacyScriptingRunner.runEvent(postWriteEvent, z, bundle);
-    });
-};
+      }
+      return legacyScriptingRunner.runEvent(postWriteEvent, z, bundle)
+    })
+}
 
 module.exports = {
   key: 'add_attachment',
@@ -119,4 +120,4 @@ module.exports = {
       workPhoneNumber: '(510) 629-4494'
     }
   }
-};
+}

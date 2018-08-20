@@ -1,16 +1,15 @@
 const getLoadedPeople = async (z, bundle) => {
   let response = await z.request({
-    url: 'https://api.clockworkrecruiting.com/v1/{{firm_subdomain}}/people',
+    url: 'https://api.clockworkrecruiting.com/v1/{firm_subdomain}/people',
     method: 'GET',
-    params:{
+    params: {
       detail: 'full',
-      sort: '-loadedAt' 
+      sort: '-loadedAt'
     }
   })
-  if(response.data && response.data.people && response.data.people.records){ 
+  if (response.data && response.data.people && response.data.people.records) {
     return response.data.people.records
-  }
-  else{
+  } else {
     return []
   }
 }
@@ -66,4 +65,4 @@ module.exports = {
       workPhoneNumber: null
     }
   }
-};
+}
