@@ -4,44 +4,45 @@ const getAttachment = async (z, bundle) => {
     method: 'GET'
   })
 
-  return response.data.person
+  return response
+}
+
+const getPerson = async (z, bundle) => {
+  let response = await z.request({
+    url: 'https://api.clockworkrecruiting.com/v1/{firm_subdomain}/people/{{bundle.inputData.person_id}}',
+    method: 'GET',
+    params: {
+      detail: 'full'
+    }
+  })
+
+  return response
 }
 
 const addAttachment = async (z, bundle) => {
-  let response = await z.request({
+  let response = await getAttachment(z, bundle)
+
+  var contentType = response.headers['content-type']
+  var header = response.headers['content-disposition']
+  var fileName = header.split('filename=')[1].replace('\"', '').replace('\"', '')
+
+  var attachment = {}
+  attachment.attachmentType = bundle.inputData.attachment_type
+  attachment.url = bundle.inputData.url
+  attachment.contentType = contentType
+  attachment.fileName = fileName
+
+  var person = {}
+
+  person.attachments = [attachment]
+
+  await z.request({
     url: 'https://api.clockworkrecruiting.com/v1/{firm_subdomain}/people/{{bundle.inputData.person_id}}',
-    method: 'POST'
+    method: 'POST',
+    json: person
   })
 
-  return ''
-}
-
-const makeRequest = (z, bundle) => {
-  const scripting = require('../scripting')
-  const legacyScriptingRunner = require('zapier-platform-legacy-scripting-runner')(scripting)
-
-  bundle._legacyUrl = 'https://api.clockworkrecruiting.com/v1/{{firm_subdomain}}/people/{{person_id}}'
-  bundle._legacyUrl = replaceVars(bundle._legacyUrl, bundle)
-
-  // Do a _pre_write() from scripting.
-  const preWriteEvent = {
-    name: 'create.pre',
-    key: 'add_attachment'
-  }
-  return legacyScriptingRunner
-    .runEvent(preWriteEvent, z, bundle)
-    .then(preWriteResult => z.request(preWriteResult))
-    .then(response => {
-      response.throwForStatus()
-
-      // Do a _post_write() from scripting.
-      const postWriteEvent = {
-        name: 'create.post',
-        key: 'add_attachment',
-        response
-      }
-      return legacyScriptingRunner.runEvent(postWriteEvent, z, bundle)
-    })
+  let responsePerson = await getPerson(z, bundle)
 }
 
 module.exports = {
@@ -83,7 +84,7 @@ module.exports = {
       }
     ],
     outputFields: [],
-    perform: makeRequest,
+    perform: addAttachment,
     sample: {
       address: '2030 Franklin St, Suite 202, Oakland, CA, 94612',
       emailAddress: 'christian@clockworkrecruiting.com',

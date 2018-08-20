@@ -17,67 +17,6 @@ const findPeople = async (z, bundle) => {
   }
 }
 
-const getList = (z, bundle) => {
-  const scripting = require('../scripting')
-  const legacyScriptingRunner = require('zapier-platform-legacy-scripting-runner')(scripting)
-
-  // We're cloning bundle to re-use it when mimicking a "fetch resource" that happened in WB
-  const resourceBundle = _.cloneDeep(bundle)
-
-  bundle._legacyUrl = 'https://api.clockworkrecruiting.com/v1/{{firm_subdomain}}/people/{{id_value}}?detail=summary'
-  bundle._legacyUrl = replaceVars(bundle._legacyUrl, bundle)
-  bundle.request = { url: bundle._legacyUrl }
-
-  resourceBundle._legacyUrl = 'https://api.clockworkrecruiting.com/v1/{{firm_subdomain}}/people/{{id}}'
-
-  return runBeforeMiddlewares(bundle.request, z, bundle)
-    .then(request => {
-      bundle.request = request
-
-      // Do a _search() from scripting.
-      const fullSearchEvent = {
-        name: 'search.search',
-        key: 'person'
-      }
-      return legacyScriptingRunner.runEvent(fullSearchEvent, z, bundle)
-    })
-
-    .then(fullSearchResult => {
-      // Mimick the "fetch resource" that happened in WB
-      const results = fullSearchResult
-
-      // Do a _pre_read_resource() from scripting.
-      const preResourceEvent = {
-        name: 'search.resource.pre',
-        key: 'person',
-        results
-      }
-      resourceBundle._legacyUrl = replaceVars(resourceBundle._legacyUrl, resourceBundle, _.get(results, 0))
-      return legacyScriptingRunner.runEvent(preResourceEvent, z, resourceBundle)
-    })
-    .then(preResourceResult => z.request(preResourceResult))
-    .then(response => {
-      response.throwForStatus()
-
-      // Do a _post_read_resource() from scripting.
-      const postResourceEvent = {
-        name: 'search.resource.post',
-        key: 'person',
-        response,
-        results: resourceBundle.results
-      }
-      return legacyScriptingRunner.runEvent(postResourceEvent, z, resourceBundle)
-    })
-    .then(results => {
-      // WB would return a single record, but in CLI we expect an array
-      if (_.isArray(results)) {
-        return results
-      } else {
-        return [results]
-      }
-    })
-};
-
 module.exports = {
   key: 'person',
   noun: 'Person',
@@ -230,7 +169,7 @@ module.exports = {
         type: 'string'
       }
     ],
-    perform: getList,
+    perform: findPeople,
     sample: {
       address: '2030 Franklin St, Suite 202, Oakland, CA, 94612',
       emailAddress: 'christian@clockworkrecruiting.com',
