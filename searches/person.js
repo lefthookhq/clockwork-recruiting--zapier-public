@@ -1,6 +1,6 @@
 const findPeople = async (z, bundle) => {
   let response = await z.request({
-    url: 'https://api.clockworkrecruiting.com/v1/{firm_subdomain}/people/{{bundle.inputData.id_value}}/people',
+    url: 'https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people/{{bundle.inputData.id_value}}/people',
     method: 'GET',
     params: {
       detail: 'full',

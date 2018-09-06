@@ -1,5 +1,5 @@
 'use strict';
-
+ 
 
 // START: HEADER -- AUTOMATICALLY ADDED FOR COMPATIBILITY - v1.2.0
 const _ = require('lodash');
@@ -45,7 +45,7 @@ var Zap = {
       request.headers["X-Api-Key"] = "gkuCcomxcF7s30tKlJR0Z5U4DHY424KG7RLXPRyj";
     }
 
-    request.url = request.url.replace('{firm_subdomain}', bundle.auth_fields.firm_subdomain || 'account');
+    request.url = request.url.replace('{bundle.authData.firm_subdomain}', bundle.auth_fields.bundle.authData.firm_subdomain || 'account');
     return request;
   },
 
@@ -243,7 +243,7 @@ var Zap = {
     
  
     //url to check for person by email
-    var url = "https://api.clockworkrecruiting.com/v1/"+bundle.auth_fields.firm_subdomain+"/people/"+encodeURIComponent(bundle.action_fields_full.emailAddress);
+    var url = "https://api.clockworkrecruiting.com/v1/"+bundle.auth_fields.bundle.authData.firm_subdomain+"/people/"+encodeURIComponent(bundle.action_fields_full.emailAddress);
     
     var requestBundle = Zap.clockworkRequest(bundle);
     console.log(requestBundle);
@@ -283,7 +283,7 @@ var Zap = {
       
        var request = {
       'method': 'GET',
-      'url': "https://api.clockworkrecruiting.com/v1/"+bundle.auth_fields.firm_subdomain+"/people/"+id,
+      'url': "https://api.clockworkrecruiting.com/v1/"+bundle.auth_fields.bundle.authData.firm_subdomain+"/people/"+id,
       'params': {
         'detail': 'full'
       },
@@ -345,7 +345,7 @@ var Zap = {
     
     
     
-    var url = "https://api.clockworkrecruiting.com/v1/"+bundle.auth_fields.firm_subdomain+"/people/"+encodeURIComponent(bundle.action_fields_full.emailAddress);
+    var url = "https://api.clockworkrecruiting.com/v1/"+bundle.auth_fields.bundle.authData.firm_subdomain+"/people/"+encodeURIComponent(bundle.action_fields_full.emailAddress);
     
     var requestBundle = Zap.clockworkRequest(bundle);
     console.log(requestBundle);
@@ -386,7 +386,7 @@ var Zap = {
       
        var request = {
       'method': 'GET',
-      'url': "https://api.clockworkrecruiting.com/v1/"+bundle.auth_fields.firm_subdomain+"/people/"+id,
+      'url': "https://api.clockworkrecruiting.com/v1/"+bundle.auth_fields.bundle.authData.firm_subdomain+"/people/"+id,
       'params': {
         'detail': 'full'
       },
@@ -430,7 +430,7 @@ var Zap = {
       
        var request = {
       'method': 'GET',
-      'url': "https://api.clockworkrecruiting.com/v1/"+bundle.auth_fields.firm_subdomain+"/people/"+id,
+      'url': "https://api.clockworkrecruiting.com/v1/"+bundle.auth_fields.bundle.authData.firm_subdomain+"/people/"+id,
       'params': {
         'detail': 'full'
       },
@@ -493,7 +493,7 @@ var Zap = {
       
        var request = {
       'method': 'GET',
-      'url': "https://api.clockworkrecruiting.com/v1/"+bundle.auth_fields.firm_subdomain+"/people/"+id,
+      'url': "https://api.clockworkrecruiting.com/v1/"+bundle.auth_fields.bundle.authData.firm_subdomain+"/people/"+id,
       'params': {
         'detail': 'full'
       },

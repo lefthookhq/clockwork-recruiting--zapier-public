@@ -1,6 +1,6 @@
 const getPerson = async (z, bundle) => {
   let response = await z.request({
-    url: 'https://api.clockworkrecruiting.com/v1/{firm_subdomain}/people/{{bundle.inputData.person_id}}',
+    url: 'https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people/{{bundle.inputData.person_id}}',
     method: 'GET',
     params: {
       detail: 'full'
@@ -24,7 +24,7 @@ const addNoteToPerson = async (z, bundle) => {
     notes: [data]
   }
   await z.request({
-    url: 'https://api.clockworkrecruiting.com/v1/{firm_subdomain}/people/{{bundle.inputData.person_id}}',
+    url: 'https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people/{{bundle.inputData.person_id}}',
     method: 'POST',
     json: person
   })

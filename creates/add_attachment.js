@@ -9,7 +9,7 @@ const getAttachment = async (z, bundle) => {
 
 const getPerson = async (z, bundle) => {
   let response = await z.request({
-    url: 'https://api.clockworkrecruiting.com/v1/{firm_subdomain}/people/{{bundle.inputData.person_id}}',
+    url: 'https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people/{{bundle.inputData.person_id}}',
     method: 'GET',
     params: {
       detail: 'full'
@@ -37,12 +37,13 @@ const addAttachment = async (z, bundle) => {
   person.attachments = [attachment]
 
   await z.request({
-    url: 'https://api.clockworkrecruiting.com/v1/{firm_subdomain}/people/{{bundle.inputData.person_id}}',
+    url: 'https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people/{{bundle.inputData.person_id}}',
     method: 'POST',
     json: person
   })
 
   let responsePerson = await getPerson(z, bundle)
+  return responsePerson
 }
 
 module.exports = {

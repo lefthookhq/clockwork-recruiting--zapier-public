@@ -1,6 +1,6 @@
 const getPerson = async (z, bundle, id) => {
   let response = await z.request({
-    url: `https://api.clockworkrecruiting.com/v1/{firm_subdomain}/people/${id}`,
+    url: `https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people/${id}`,
     method: 'GET',
     params: {
       detail: 'full'
@@ -12,7 +12,7 @@ const getPerson = async (z, bundle, id) => {
 
 const searchPerson = async (z, bundle, id) => {
   let response = await z.request({
-    url: `https://api.clockworkrecruiting.com/v1/{firm_subdomain}/people/${encodeURIComponent(bundle.inputData.emailAddress)}`,
+    url: `https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people/${encodeURIComponent(bundle.inputData.emailAddress)}`,
     method: 'GET',
     params: {
       detail: 'full'
@@ -116,7 +116,7 @@ const createPerson = async (z, bundle) => {
     body.addresses = addresses
   }
 
-  let url = 'https://api.clockworkrecruiting.com/v1/{firm_subdomain}/people'
+  let url = 'https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people'
   let search = await searchPerson(z, bundle)
   // may not throw the correct error.
   if (search.status === 200 && bundle.inputData.update_create) {

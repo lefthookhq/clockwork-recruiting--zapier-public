@@ -19,7 +19,7 @@ const formatForClockwork = (request, z, bundle) => {
     request.headers['X-Api-Key'] = 'gkuCcomxcF7s30tKlJR0Z5U4DHY424KG7RLXPRyj'
   }
 
-  request.url = request.url.replace('{firm_subdomain}', bundle.authData.firm_subdomain || 'account')
+  request.url = request.url.replace('{bundle.authData.firm_subdomain}', bundle.authData.bundle.authData.firm_subdomain || 'account')
   return request
 }
 
