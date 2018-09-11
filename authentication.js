@@ -1,80 +1,68 @@
-const { replaceVars } = require('./utils')
-const testTrigger = require('./triggers/timestamp')
 
-const getAccessToken = (z, bundle) => {
-  const scripting = require('./scripting')
-  const legacyScriptingRunner = require('zapier-platform-legacy-scripting-runner')(scripting)
-
-  bundle._legacyUrl = 'https://api.clockworkrecruiting.com/v1/{{bundle.authData.firm_subdomain}}/oauth/token'
-  bundle._legacyUrl = replaceVars(bundle._legacyUrl, bundle)
-
-  // Do a pre_oauthv2_token() from scripting.
-  const preOAuth2TokenEvent = {
-    name: 'auth.oauth2.token.pre'
-  }
-  return legacyScriptingRunner
-    .runEvent(preOAuth2TokenEvent, z, bundle)
-    .then(preOAuth2TokenResult => z.request(preOAuth2TokenResult))
-    .then(response => {
-      if (response.status !== 200) {
-        throw new Error(`Unable to fetch access token: ${response.content}`)
-      }
-      return z.JSON.parse(response.content)
-    })
+const testAuth = async (z, bundle) => {
+  let response = await z.request({
+    url: 'https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/support/timestamp',
+    method: 'GET'
+  })
+  return {id: 'ok'}
 }
+const getSessionKey = async (z, bundle) => {
+  const response = await z.request({
+    method: 'POST',
+    url: 'https://api.clockworkrecruiting.com/v1/lefthook/oauth/token',
+    body: {
+      'client_id': process.env.CLIENT_ID,
+      'client_secret': process.env.CLIENT_SECRET,
+      'grant_type': 'password',
+      'username': bundle.authData.username,
+      'password': bundle.authData.password,
+      'scope': 'people.*'
+    }
+  })
 
-const refreshAccessToken = (z, bundle) => {
-  const scripting = require('./scripting')
-  const legacyScriptingRunner = require('zapier-platform-legacy-scripting-runner')(scripting)
-
-  bundle._legacyUrl = 'https://api.clockworkrecruiting.com/v1/{{bundle.authData.firm_subdomain}}/oauth/token'
-  bundle._legacyUrl = replaceVars(bundle._legacyUrl, bundle)
-
-  // Do a pre_oauthv2_refresh() from scripting.
-  const preOAuth2RefreshEvent = {
-    name: 'auth.oauth2.refresh.pre'
+  if (response.status === 401) {
+    throw new Error('The username/password you supplied is invalid')
   }
-  return legacyScriptingRunner
-    .runEvent(preOAuth2RefreshEvent, z, bundle)
-    .then(preOAuth2RefreshResult => z.request(preOAuth2RefreshResult))
-    .then(response => {
-      if (response.status !== 200) {
-        throw new Error(`Unable to fetch access token: ${response.content}`)
-      }
-
-      return z.JSON.parse(response.content)
-    })
+  return {
+    sessionKey: response.json.access_token,
+    firm_subdomain: bundle.authData.firm
+  }
 }
 
 const authentication = {
-  // TODO: just an example stub - you'll need to complete
-  type: 'oauth2',
-  test: testTrigger.operation.perform,
-  oauth2Config: {
-    authorizeUrl: {
-      method: 'GET',
-      url: 'http://{{bundle.authData.firm_subdomain}}.clockworkrecruiting.com/oauth/authorize',
-      params: {
-        client_id: '{{process.env.CLIENT_ID}}',
-        state: '{{bundle.inputData.state}}',
-        redirect_uri: '{{bundle.inputData.redirect_uri}}',
-        response_type: 'code'
-      }
+  type: 'session',
+  // "test" could also be a function
+  test: testAuth,
+  fields: [
+    {
+      key: 'username',
+      type: 'string',
+      required: true,
+      helpText: 'Your login username.'
     },
-
-    getAccessToken: getAccessToken,
-
-    refreshAccessToken: refreshAccessToken,
-    fields: [
-      { key: 'firm_subdomain', type: 'string', required: true, default: 'app' }
-    ],
-
-    scope: 'people.*',
-
-    autoRefresh: true
-  },
-
-  connectionLabel: ''
+    {
+      key: 'password',
+      type: 'password',
+      required: true,
+      helpText: 'Your login password.'
+    },
+    {
+      key: 'firm',
+      label: 'Firm Subdomain',
+      type: 'string',
+      required: true,
+      helpText: 'Subdomain for your firm'
+    },
+    {
+      key: 'firm_subdomain',
+      type: 'string',
+      required: false,
+      computed: true
+    }
+  ],
+  sessionConfig: {
+    perform: getSessionKey
+  }
 }
 
 module.exports = authentication

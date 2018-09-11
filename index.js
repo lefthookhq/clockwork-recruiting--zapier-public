@@ -11,15 +11,9 @@ const CreatepersonCreate = require('./creates/create_person')
 const CreatepersonbasicCreate = require('./creates/create_person_basic')
 
 const formatForClockwork = (request, z, bundle) => {
-  if (request.url.indexOf('/stage_v') !== -1) {
-    request.headers['X-Api-Key'] = 'tlM1TGQIRY1YpPOSFsXU16JGAKk8SyVP6MSahp8k'
-  } else if (request.url.indexOf('/sandbox_v') !== -1) {
-    request.headers['X-Api-Key'] = '8OzLJSq8bvIOtMHm55Pv8BLMcXufjWcaEBdHZN7d'
-  } else {
-    request.headers['X-Api-Key'] = 'gkuCcomxcF7s30tKlJR0Z5U4DHY424KG7RLXPRyj'
-  }
-
-  request.url = request.url.replace('{bundle.authData.firm_subdomain}', bundle.authData.bundle.authData.firm_subdomain || 'account')
+  request.headers['X-Api-Key'] = '44OUQAAP5u42jmj7huAjG9IkkAhFx9H6XxV2B9K7'
+  request.headers.authorization = `bearer ${bundle.authData.sessionKey}`
+  request.url = request.url.replace('{bundle.authData.firm_subdomain}', bundle.authData.firm_subdomain || 'account')
   return request
 }
 
@@ -28,6 +22,13 @@ const checkForError = (response, z, bundle) => {
   if (response.status > 200 && response.status !== 401 && response.status !== 404) {
     // see how to throw errors here. are they in the body? need oauth apps.
   }
+}
+
+const refreshAuth = (response, z, bundle) => {
+  if (response.status === 401 && bundle.authData.sessionKey) {
+    throw new z.errors.RefreshAuthError()
+  }
+  return response
 }
 // after app to look for error codes and format.
 const App = {
@@ -38,7 +39,10 @@ const App = {
 
   beforeRequest: [formatForClockwork],
 
-  afterResponse: [],
+  afterResponse: [
+    checkForError,
+    refreshAuth
+  ],
 
   resources: {},
 
