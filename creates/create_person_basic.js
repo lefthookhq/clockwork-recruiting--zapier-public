@@ -7,7 +7,7 @@ const getPerson = async (z, bundle, id) => {
     }
   })
 
-  return response
+  return response.json.data.person
 }
 
 const searchPerson = async (z, bundle, id) => {
@@ -57,12 +57,23 @@ const createPerson = async (z, bundle) => {
     addresses.push(address)
     body.addresses = addresses
   }
+  delete body.update_create
+  /*
+  // format email address
+  body.emailAddresses = [{
+    location: 'work',
+    address: bundle.inputData.emailAddress,
+    isPreferred: true
+  }]
+  delete body.emailAddress
+*/
   let url = 'https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people'
   let search = await searchPerson(z, bundle)
   if (search.status === 200 && bundle.inputData.update_create) {
     url += '/' + search.json.data.person.id
-  } else {
-    throw new z.HaltedError('Person with email exists with the given email and update if found is set to no.')
+  }
+  if (search.status === 404 && bundle.inputData.update_create) {
+    throw new z.errors.HaltedError('Person with email exists with the given email and update if found is set to no.')
   }
 
   let response = await z.request({
@@ -90,6 +101,42 @@ module.exports = {
 
   operation: {
     inputFields: [
+      {
+        key: 'name',
+        label: 'Name',
+        helpText: 'Full name of the person.',
+        type: 'string',
+        required: true
+      },
+      {
+        key: 'emailAddress',
+        label: 'Email Address',
+        helpText: 'Primary email address of the person.',
+        type: 'string',
+        required: true
+      },
+      {
+        key: 'update_create',
+        label: 'Update if Found?',
+        helpText:
+          'If yes is chosen the action will update a contact if one exist with the email.\nIf no is chosen the action will throw on error if a contact exist with the same email.',
+        type: 'boolean',
+        required: true
+      },
+      {
+        key: 'firstName',
+        label: 'First Name',
+        helpText: 'First name of person.',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'lastName',
+        label: 'Last Name',
+        helpText: 'Last name of person.',
+        type: 'string',
+        required: false
+      },
       {
         key: 'address_city',
         label: 'Address City',
@@ -135,30 +182,9 @@ module.exports = {
         required: false
       },
       {
-        key: 'emailAddress',
-        label: 'Email Address',
-        helpText: 'Primary email address of the person.',
-        type: 'string',
-        required: true
-      },
-      {
         key: 'externalRef',
         label: 'External Reference',
         helpText: 'Unique reference to person in an external system.',
-        type: 'string',
-        required: false
-      },
-      {
-        key: 'firstName',
-        label: 'First Name',
-        helpText: 'First name of person.',
-        type: 'string',
-        required: false
-      },
-      {
-        key: 'lastName',
-        label: 'Last Name',
-        helpText: 'Last name of person.',
         type: 'string',
         required: false
       },
@@ -175,13 +201,6 @@ module.exports = {
         helpText: 'Middle name of person.',
         type: 'string',
         required: false
-      },
-      {
-        key: 'name',
-        label: 'Name',
-        helpText: 'Full name of the person.',
-        type: 'string',
-        required: true
       },
       {
         key: 'phoneNumber',
@@ -214,14 +233,14 @@ module.exports = {
       {
         key: 'positionEnd',
         label: 'Position End',
-        helpText: 'End month and year of primary job position.',
+        helpText: 'End month and year of primary job position. Format YYYY/MM',
         type: 'string',
         required: false
       },
       {
         key: 'positionStart',
         label: 'Position Start',
-        helpText: 'Start month and year of primary job position.',
+        helpText: 'Start month and year of primary job position. Format YYYY/MM',
         type: 'string',
         required: false
       },
@@ -252,14 +271,6 @@ module.exports = {
         helpText: 'Semi-colon delimited list of keyword tag values associated with this person.',
         type: 'string',
         required: false
-      },
-      {
-        key: 'update_create',
-        label: 'Update if Found?',
-        helpText:
-          'If yes is chosen the action will update a contact if one exist with the email.\nIf no is chosen the action will throw on error if a contact exist with the same email.',
-        type: 'boolean',
-        required: true
       }
     ],
     outputFields: [
