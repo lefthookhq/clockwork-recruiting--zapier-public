@@ -1,3 +1,6 @@
+const _ = require('underscore')
+const {formatDateFieldsInCreateResponse} = require('../scripting.js')
+
 const getPerson = async (z, bundle, id) => {
   let response = await z.request({
     url: `https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people/${id}`,
@@ -25,67 +28,58 @@ const searchPerson = async (z, bundle, id) => {
 const createPerson = async (z, bundle) => {
   let body = JSON.parse(JSON.stringify(bundle.inputData))
 
-  if (bundle.inputData.address_street !== undefined) {
+  if (bundle.inputData.address_street) {
     var addresses = []
     var address = {}
     address.street = bundle.inputData.address_street
 
-    if (bundle.inputData.address_location !== undefined) {
+    if (bundle.inputData.address_location) {
       address.location = bundle.inputData.address_location
     }
 
-    if (bundle.inputData.address_street2 !== undefined) {
+    if (bundle.inputData.address_street2) {
       address.street2 = bundle.inputData.address_street2
     }
 
-    if (bundle.inputData.home_address_city !== undefined) {
+    if (bundle.inputData.address_city) {
       address.city = bundle.inputData.address_city
     }
 
-    if (bundle.inputData.address_state !== undefined) {
+    if (bundle.inputData.address_state) {
       address.state = bundle.inputData.address_state
     }
 
-    if (bundle.inputData.address_postal_code !== undefined) {
+    if (bundle.inputData.address_postal_code) {
       address.postalCode = bundle.inputData.address_postal_code
     }
 
-    if (bundle.inputData.address_country !== undefined) {
+    if (bundle.inputData.address_country) {
       address.country = bundle.inputData.address_country
     }
 
     addresses.push(address)
     body.addresses = addresses
   }
-  delete body.update_create
-  /*
-  // format email address
-  body.emailAddresses = [{
-    location: 'work',
-    address: bundle.inputData.emailAddress,
-    isPreferred: true
-  }]
-  delete body.emailAddress
-*/
+  let finalBody = _.omit(body, ['address_city', 'address_country', 'update_create', 'address_location', 'address_postal_code', 'address_state', 'address_street2', 'address_street'])
   let url = 'https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people'
   let search = await searchPerson(z, bundle)
-  if (search.status === 200 && bundle.inputData.update_create) {
+  if (search.status === 200 && bundle.inputData.update_create === true) {
     url += '/' + search.json.data.person.id
   }
-  if (search.status === 404 && bundle.inputData.update_create) {
+  if (search.status !== 404 && bundle.inputData.update_create === false) {
     throw new z.errors.HaltedError('Person with email exists with the given email and update if found is set to no.')
   }
 
   let response = await z.request({
     url: url,
     method: 'POST',
-    json: body
+    json: finalBody
   })
 
   let id = response.json.data.person.id
 
   let fullDetailResponse = await getPerson(z, bundle, id)
-  return fullDetailResponse
+  return formatDateFieldsInCreateResponse(fullDetailResponse)
 }
 
 module.exports = {
@@ -219,8 +213,8 @@ module.exports = {
       {
         key: 'position',
         label: 'Position',
-        helpText: 'Current position held by person.',
-        type: 'string',
+        helpText: 'Description of the position as a summary string.',
+        type: 'text',
         required: false
       },
       {
@@ -233,14 +227,14 @@ module.exports = {
       {
         key: 'positionEnd',
         label: 'Position End',
-        helpText: 'End month and year of primary job position. Format YYYY/MM',
+        helpText: 'End month and year of primary job position. Format MM/YYYY',
         type: 'string',
         required: false
       },
       {
         key: 'positionStart',
         label: 'Position Start',
-        helpText: 'Start month and year of primary job position. Format YYYY/MM',
+        helpText: 'Start month and year of primary job position. Format MM/YYYY',
         type: 'string',
         required: false
       },

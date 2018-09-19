@@ -13,6 +13,7 @@
   "dependencies": {
     "async": "2.5.0",
     "lodash": "4.17.4",
+    "moment": "^2.22.2",
     "moment-timezone": "0.5.13",
     "underscore": "^1.9.1",
     "xmldom": "0.1.27",
