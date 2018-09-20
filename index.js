@@ -18,10 +18,14 @@ const formatForClockwork = (request, z, bundle) => {
 }
 
 const checkForError = (response, z, bundle) => {
-  // ensure that the error code for auth it 401.
-  if (response.status > 200 && response.status !== 401 && response.status !== 404) {
-    // see how to throw errors here. are they in the body? need oauth apps.
+  if (response.status === 500) {
+    throw Error('Internal error')
   }
+  if (response.status === 400) {
+    let error = response.json.data.message
+    throw new Error(error)
+  }
+  return response
 }
 
 const refreshAuth = (response, z, bundle) => {
@@ -40,7 +44,8 @@ const App = {
   beforeRequest: [formatForClockwork],
 
   afterResponse: [
-    refreshAuth
+    refreshAuth,
+    checkForError
   ],
 
   resources: {},
@@ -76,3 +81,4 @@ const App = {
 }
 
 module.exports = App
+

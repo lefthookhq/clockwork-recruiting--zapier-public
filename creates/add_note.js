@@ -1,14 +1,4 @@
-const getPerson = async (z, bundle) => {
-  let response = await z.request({
-    url: 'https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people/{{bundle.inputData.person_id}}',
-    method: 'GET',
-    params: {
-      detail: 'full'
-    }
-  })
-
-  return response
-}
+const {formatDateFieldsInCreateResponse, getFullDetialPerson} = require('../supporting_functions.js')
 
 const addNoteToPerson = async (z, bundle) => {
   let data = {
@@ -29,9 +19,8 @@ const addNoteToPerson = async (z, bundle) => {
     json: person
   })
 
-  let personResponse = await getPerson(z, bundle)
-
-  return personResponse
+  let personResponse = await getFullDetialPerson(z, bundle)
+  return formatDateFieldsInCreateResponse(personResponse)
 }
 // you need to define the fields for this it is taken from add attachment.
 
@@ -79,7 +68,22 @@ module.exports = {
         key: 'catagory',
         label: 'Category',
         type: 'string',
-        required: false
+        required: false,
+        choices: {
+          'Call': 'Call',
+          'Email': 'Email',
+          'Follow Up': 'Follow Up',
+          'Meeting': 'Meeting',
+          'Next Steps': 'Next Steps',
+          'Overview': 'Overview',
+          'Assessment': 'Assessment',
+          'Resume': 'Resume Text',
+          'Reference': 'Reference',
+          'Left Message': 'Left Message',
+          'Internal': 'Internal',
+          'Source': 'Source',
+          'Feedback': 'Feedback'
+        }
       }
     ],
     outputFields: [],

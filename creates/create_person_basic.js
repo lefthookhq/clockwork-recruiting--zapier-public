@@ -1,29 +1,5 @@
 const _ = require('underscore')
-const {formatDateFieldsInCreateResponse} = require('../scripting.js')
-
-const getPerson = async (z, bundle, id) => {
-  let response = await z.request({
-    url: `https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people/${id}`,
-    method: 'GET',
-    params: {
-      detail: 'full'
-    }
-  })
-
-  return response.json.data.person
-}
-
-const searchPerson = async (z, bundle, id) => {
-  let response = await z.request({
-    url: `https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people/${encodeURIComponent(bundle.inputData.emailAddress)}`,
-    method: 'GET',
-    params: {
-      detail: 'full'
-    }
-  })
-
-  return response
-}
+const {formatDateFieldsInCreateResponse, getFullDetialPerson, searchPerson} = require('../supporting_functions.js')
 
 const createPerson = async (z, bundle) => {
   let body = JSON.parse(JSON.stringify(bundle.inputData))
@@ -78,7 +54,7 @@ const createPerson = async (z, bundle) => {
 
   let id = response.json.data.person.id
 
-  let fullDetailResponse = await getPerson(z, bundle, id)
+  let fullDetailResponse = await getFullDetialPerson(z, bundle, id)
   return formatDateFieldsInCreateResponse(fullDetailResponse)
 }
 

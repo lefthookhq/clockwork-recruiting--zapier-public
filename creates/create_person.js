@@ -1,37 +1,16 @@
-const getPerson = async (z, bundle, id) => {
-  let response = await z.request({
-    url: `https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people/${id}`,
-    method: 'GET',
-    params: {
-      detail: 'full'
-    }
-  })
-
-  return response
-}
-
-const searchPerson = async (z, bundle, id) => {
-  let response = await z.request({
-    url: `https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people/${encodeURIComponent(bundle.inputData.emailAddress)}`,
-    method: 'GET',
-    params: {
-      detail: 'full'
-    }
-  })
-
-  return response
-}
+const _ = require('underscore')
+const {formatDateFieldsInCreateResponse, getFullDetialPerson, searchPerson} = require('../supporting_functions.js')
 
 const createPerson = async (z, bundle) => {
   let body = JSON.parse(JSON.stringify(bundle.inputData))
 
   var addresses = []
 
-  //check for address fields for home address
+  // check for address fields for home address
   if (bundle.inputData.home_address_street1 !== undefined) {
     var homeAddress = {}
     homeAddress.street = bundle.inputData.home_address_street1
-    homeAddress.location = 'home';
+    homeAddress.location = 'home'
 
     if (bundle.inputData.home_address_street2 !== undefined) {
       homeAddress.street2 = bundle.inputData.home_address_street2
@@ -59,7 +38,7 @@ const createPerson = async (z, bundle) => {
   if (bundle.inputData.work_address_street1 !== undefined) {
     var workAddress = {}
     workAddress.street = bundle.inputData.work_address_street1
-    workAddress.location = 'work';
+    workAddress.location = 'work'
 
     if (bundle.inputData.work_address_street2 !== undefined) {
       workAddress.street2 = bundle.inputData.work_address_street2
@@ -87,7 +66,7 @@ const createPerson = async (z, bundle) => {
   if (bundle.inputData.other_address_street1 !== undefined) {
     var otherAddress = {}
     otherAddress.street = bundle.inputData.other_address_street1
-    otherAddress.location = 'other';
+    otherAddress.location = 'other'
 
     if (bundle.inputData.other_address_street2 !== undefined) {
       otherAddress.street2 = bundle.inputData.other_address_street2
@@ -119,22 +98,24 @@ const createPerson = async (z, bundle) => {
   let url = 'https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people'
   let search = await searchPerson(z, bundle)
   // may not throw the correct error.
-  if (search.status === 200 && bundle.inputData.update_create) {
+  if (search.status === 200 && bundle.inputData.update_create === true) {
     url += '/' + search.json.data.person.id
-  } else {
-    throw new z.HaltedError('Person with email exists with the given email and update if found is set to no.')
   }
-
+  if (search.status !== 404 && bundle.inputData.update_create === false) {
+    throw new z.errors.HaltedError('Person with email exists with the given email and update if found is set to no.')
+  }
+  // clean body of non api fields
+  let finalBody = _.omit(body, ['update_create', 'home_address_city', 'home_address_country', 'home_address_location', 'home_address_postal_code', 'home_address_state', 'home_address_street1', 'other_address_street1', 'home_address_street2', 'work_address_street1', 'home_address_street', 'other_address_city', 'other_address_country', 'other_address_location', 'other_address_postal_code', 'other_address_state', 'other_address_street2', 'other_address_street', 'work_address_city', 'work_address_country', 'work_address_location', 'work_address_postal_code', 'work_address_state', 'work_address_street2', 'work_address_street'])
   let response = await z.request({
     url: url,
     method: 'POST',
-    json: body
+    json: finalBody
   })
 
   let id = response.json.data.person.id
 
-  let fullDetailResponse = await getPerson(z, bundle, id)
-  return fullDetailResponse
+  let fullDetailResponse = await getFullDetialPerson(z, bundle, id)
+  return formatDateFieldsInCreateResponse(fullDetailResponse)
 }
 
 module.exports = {
@@ -149,291 +130,292 @@ module.exports = {
   },
 
   operation: {
-    inputFields: [{
-      key: 'emailAddress',
-      label: 'Email Address',
-      helpText: 'Primary email address of the person.',
-      type: 'string',
-      required: true
-    },
-    {
-      key: 'externalRef',
-      label: 'External Reference',
-      helpText: 'Unique reference to person in an external system.',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'firstName',
-      label: 'First Name',
-      helpText: 'First name of person.',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'homeEmailAddress',
-      label: 'Home Email Address',
-      helpText: 'Home email address.',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'homePhoneNumber',
-      label: 'Home Phone Number',
-      helpText: 'Home phone number of person.',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'home_address_city',
-      label: 'Home Address City',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'home_address_country',
-      label: 'Home Address Country',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'home_address_postal_code',
-      label: 'Home Address Postal Code',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'home_address_state',
-      label: 'Home Address State',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'home_address_street1',
-      label: 'Home Address Street1',
-      helpText: 'Home of person.',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'home_address_street2',
-      label: 'Home Address Street2',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'lastName',
-      label: 'Last Name',
-      helpText: 'Last name of person.',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'linkedinUrl',
-      label: 'LinkedIn URL',
-      helpText: 'URL for LinkedIn profile page of person.',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'middleName',
-      label: 'Middle Name',
-      helpText: 'Middle name of person.',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'mobilePhoneNumber',
-      label: 'Mobile Phone Number',
-      helpText: 'Mobile phone number of person.',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'name',
-      label: 'Name',
-      helpText: 'Full name of the person.',
-      type: 'string',
-      required: true
-    },
-    {
-      key: 'otherEmailAddress',
-      label: 'Other Email Address',
-      helpText: 'Other email address.',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'otherPhoneNumber',
-      label: 'Other Phone Number',
-      helpText: 'Other phone number of person.',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'other_address_city',
-      label: 'Other Address City',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'other_address_country',
-      label: 'Other Address Country',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'other_address_postal_code',
-      label: 'Other Address Postal Code',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'other_address_state',
-      label: 'Other Address State',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'other_address_street1',
-      label: 'Other Address Street1',
-      helpText: 'Other of person.',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'other_address_street2',
-      label: 'Other Address Street2',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'phoneNumber',
-      label: 'Phone Number',
-      helpText: 'Phone number of person.',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'pictureUrl',
-      label: 'Picture URL',
-      helpText: 'URL of profile picture for person.',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'position',
-      label: 'Position',
-      helpText: 'Current position held by person.',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'positionCompany',
-      label: 'Position Company',
-      helpText: 'Company name of primary job position.',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'positionEnd',
-      label: 'Position End',
-      helpText: 'End month and year of primary job position.',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'positionStart',
-      label: 'Position Start',
-      helpText: 'Start month and year of primary job position.',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'positionTitle',
-      label: 'Position Title',
-      helpText: 'Title of the primary job position.',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'prefix',
-      label: 'Prefix',
-      helpText: 'Prefix before name of person.',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'suffix',
-      label: 'Suffix',
-      helpText: 'Suffix after name of person.',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'tag',
-      label: 'Tags',
-      helpText: 'Semi-colon delimited list of keyword tag values associated with this person.',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'update_create',
-      label: 'Update if Found?',
-      helpText: 'If yes is chosen the action will update a contact if one exist with the email.\nIf no is chosen the action will throw on error if a contact exist with the same email.',
-      type: 'boolean',
-      required: true
-    },
-    {
-      key: 'workEmailAddress',
-      label: 'Work Email Address',
-      helpText: 'Work email address.',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'workPhoneNumber',
-      label: 'Work Phone Number',
-      helpText: 'Work phone number of person.',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'work_address_city',
-      label: 'Work Address City',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'work_address_country',
-      label: 'Work Address Country',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'work_address_postal_code',
-      label: 'Work Address Postal Code',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'work_address_state',
-      label: 'Work Address State',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'work_address_street1',
-      label: 'Work Address Street1',
-      type: 'string',
-      required: false
-    },
-    {
-      key: 'work_address_street2',
-      label: 'Work Address Street2',
-      type: 'string',
-      required: false
-    }
+    inputFields: [
+      {
+        key: 'update_create',
+        label: 'Update if Found?',
+        helpText: 'If yes is chosen the action will update a contact if one exist with the email.\nIf no is chosen the action will throw on error if a contact exist with the same email.',
+        type: 'boolean',
+        required: true
+      },
+      {
+        key: 'emailAddress',
+        label: 'Email Address',
+        helpText: 'Primary email address of the person.',
+        type: 'string',
+        required: true
+      },
+      {
+        key: 'name',
+        label: 'Name',
+        helpText: 'Full name of the person.',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'firstName',
+        label: 'First Name',
+        helpText: 'First name of person.',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'middleName',
+        label: 'Middle Name',
+        helpText: 'Middle name of person.',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'lastName',
+        label: 'Last Name',
+        helpText: 'Last name of person.',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'externalRef',
+        label: 'External Reference',
+        helpText: 'Unique reference to person in an external system.',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'prefix',
+        label: 'Prefix',
+        helpText: 'Prefix before name of person.',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'suffix',
+        label: 'Suffix',
+        helpText: 'Suffix after name of person.',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'homeEmailAddress',
+        label: 'Home Email Address',
+        helpText: 'Home email address.',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'homePhoneNumber',
+        label: 'Home Phone Number',
+        helpText: 'Home phone number of person.',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'home_address_city',
+        label: 'Home Address City',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'home_address_country',
+        label: 'Home Address Country',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'home_address_postal_code',
+        label: 'Home Address Postal Code',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'home_address_state',
+        label: 'Home Address State',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'home_address_street1',
+        label: 'Home Address Street1',
+        helpText: 'Home of person.',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'home_address_street2',
+        label: 'Home Address Street2',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'linkedinUrl',
+        label: 'LinkedIn URL',
+        helpText: 'URL for LinkedIn profile page of person.',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'mobilePhoneNumber',
+        label: 'Mobile Phone Number',
+        helpText: 'Mobile phone number of person.',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'otherEmailAddress',
+        label: 'Other Email Address',
+        helpText: 'Other email address.',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'otherPhoneNumber',
+        label: 'Other Phone Number',
+        helpText: 'Other phone number of person.',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'other_address_city',
+        label: 'Other Address City',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'other_address_country',
+        label: 'Other Address Country',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'other_address_postal_code',
+        label: 'Other Address Postal Code',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'other_address_state',
+        label: 'Other Address State',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'other_address_street1',
+        label: 'Other Address Street1',
+        helpText: 'Other of person.',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'other_address_street2',
+        label: 'Other Address Street2',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'phoneNumber',
+        label: 'Phone Number',
+        helpText: 'Phone number of person.',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'pictureUrl',
+        label: 'Picture URL',
+        helpText: 'URL of profile picture for person.',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'position',
+        label: 'Position',
+        helpText: 'Description of the current position held by person.',
+        type: 'text',
+        required: false
+      },
+      {
+        key: 'positionTitle',
+        label: 'Position Title',
+        helpText: 'Title of the primary job position.',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'positionCompany',
+        label: 'Position Company',
+        helpText: 'Company name of primary job position.',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'positionStart',
+        label: 'Position Start',
+        helpText: 'Start month and year of primary job position.',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'positionEnd',
+        label: 'Position End',
+        helpText: 'End month and year of primary job position.',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'tag',
+        label: 'Tags',
+        helpText: 'Semi-colon delimited list of keyword tag values associated with this person.',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'workEmailAddress',
+        label: 'Work Email Address',
+        helpText: 'Work email address.',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'workPhoneNumber',
+        label: 'Work Phone Number',
+        helpText: 'Work phone number of person.',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'work_address_city',
+        label: 'Work Address City',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'work_address_country',
+        label: 'Work Address Country',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'work_address_postal_code',
+        label: 'Work Address Postal Code',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'work_address_state',
+        label: 'Work Address State',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'work_address_street1',
+        label: 'Work Address Street1',
+        type: 'string',
+        required: false
+      },
+      {
+        key: 'work_address_street2',
+        label: 'Work Address Street2',
+        type: 'string',
+        required: false
+      }
     ],
     outputFields: [{
       key: 'address',
