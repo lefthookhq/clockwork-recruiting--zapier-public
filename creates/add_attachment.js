@@ -22,10 +22,9 @@ const getPerson = async (z, bundle) => {
 
 const addAttachment = async (z, bundle) => {
   let response = await getAttachment(z, bundle)
-
-  var contentType = response.headers['content-type']
-  var header = response.headers['content-disposition']
-  var fileName = header.split('filename=')[1].replace('\"', '').replace('\"', '')
+  var contentType = response.getHeader('content-type')
+  var disposition = response.getHeader('content-disposition')
+  var fileName = disposition.split('filename=')[1].replace('\"', '').replace('\"', '')
 
   var attachment = {}
   attachment.attachmentType = bundle.inputData.attachment_type
@@ -37,14 +36,16 @@ const addAttachment = async (z, bundle) => {
 
   person.attachments = [attachment]
 
-  await z.request({
+  let finalResponse = await z.request({
     url: 'https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people/{{bundle.inputData.person_id}}',
     method: 'POST',
     json: person
   })
 
-  let responsePerson = await getFullDetialPerson(z, bundle)
-  return responsePerson
+  let id = finalResponse.json.data.person.id
+
+  let responsePerson = await getFullDetialPerson(z, bundle, id)
+  return formatDateFieldsInCreateResponse(responsePerson)
 }
 
 module.exports = {
@@ -81,7 +82,7 @@ module.exports = {
         key: 'url',
         label: 'File',
         helpText: 'The file to add as an attachment.',
-        type: 'string',
+        type: 'file',
         required: true
       }
     ],
@@ -124,3 +125,6 @@ module.exports = {
     }
   }
 }
+
+// format samples date time
+// make search fields dynamic for person in note and attachment

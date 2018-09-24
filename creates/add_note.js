@@ -2,7 +2,7 @@ const {formatDateFieldsInCreateResponse, getFullDetialPerson} = require('../supp
 
 const addNoteToPerson = async (z, bundle) => {
   let data = {
-    contentType: bundle.inputData.contnet_type,
+    contentType: 'text/html',
     content: bundle.inputData.content,
     entityId: bundle.inputData.person_id
   }
@@ -13,13 +13,15 @@ const addNoteToPerson = async (z, bundle) => {
   let person = {
     notes: [data]
   }
-  await z.request({
-    url: 'https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people/{{bundle.inputData.person_id}}',
+  let response = await z.request({
+    url: 'https://api.clockworkrecruiting.com/v1/{{bundle.authData.firm_subdomain}}/people/{{bundle.inputData.person_id}}',
     method: 'POST',
     json: person
   })
 
-  let personResponse = await getFullDetialPerson(z, bundle)
+  let id = response.json.data.person.id
+
+  let personResponse = await getFullDetialPerson(z, bundle, id)
   return formatDateFieldsInCreateResponse(personResponse)
 }
 // you need to define the fields for this it is taken from add attachment.
@@ -41,27 +43,20 @@ module.exports = {
         key: 'person_id',
         label: 'Person ID',
         helpText: 'Please enter the person Id. Note person can be found using a variety of fields by using the Find Person search.',
-        type: 'number',
-        search: 'person.id',
-        required: true
-      },
-      {
-        key: 'content_type',
-        label: 'Content Type',
-        helpText: 'Please choose a content type for this note. If you are sending html as the content.',
         type: 'string',
+        search: 'person.id',
         required: true
       },
       {
         key: 'content',
         label: 'Content',
-        type: 'string',
+        type: 'text',
         required: true
       },
       {
         key: 'visible',
         label: 'Visible',
-        type: 'string',
+        type: 'boolean',
         required: true
       },
       {
@@ -77,7 +72,7 @@ module.exports = {
           'Next Steps': 'Next Steps',
           'Overview': 'Overview',
           'Assessment': 'Assessment',
-          'Resume': 'Resume Text',
+          'Resume Text': 'Resume Text',
           'Reference': 'Reference',
           'Left Message': 'Left Message',
           'Internal': 'Internal',

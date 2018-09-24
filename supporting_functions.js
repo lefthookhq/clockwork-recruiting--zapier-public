@@ -22,6 +22,9 @@ const formatDateFieldsInCreateResponse = (response) => {
   if (newResponse.positions) {
     newResponse.positions = formatDateFieldsInSubObjectArray(newResponse.positions)
   }
+  if (newResponse.attachments) {
+    newResponse.attachments = formatDateFieldsInSubObjectArray(newResponse.attachments)
+  }
   return newResponse
 }
 
