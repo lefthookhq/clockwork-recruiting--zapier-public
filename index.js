@@ -56,9 +56,7 @@ const App = {
     [PeopleupdatedTrigger.key]: PeopleupdatedTrigger,
     [TimestampTrigger.key]: TimestampTrigger
   },
-  searchOrCreates: {
-    [PersonSearchOrCreate.key]: PersonSearchOrCreate
-  },
+
   searches: {
     [PersonSearch.key]: PersonSearch
   },
