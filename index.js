@@ -5,6 +5,7 @@ const PeopleloadedTrigger = require('./triggers/people_loaded')
 const PeopleupdatedTrigger = require('./triggers/people_updated')
 const TimestampTrigger = require('./triggers/timestamp')
 const PersonSearch = require('./searches/person')
+const PersonSearchOrCreate = require('./searches/search_or_create.js')
 const AddattachmentCreate = require('./creates/add_attachment')
 const AddnoteCreate = require('./creates/add_note')
 const CreatepersonCreate = require('./creates/create_person')
@@ -55,7 +56,9 @@ const App = {
     [PeopleupdatedTrigger.key]: PeopleupdatedTrigger,
     [TimestampTrigger.key]: TimestampTrigger
   },
-
+  searchOrCreates: {
+    [PersonSearchOrCreate.key]: PersonSearchOrCreate
+  },
   searches: {
     [PersonSearch.key]: PersonSearch
   },
@@ -81,4 +84,3 @@ const App = {
 }
 
 module.exports = App
-

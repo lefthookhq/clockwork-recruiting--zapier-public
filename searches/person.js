@@ -1,6 +1,7 @@
+const {formatDateFieldsInCreateResponse} = require('../supporting_functions.js')
 const findPeople = async (z, bundle) => {
   let response = await z.request({
-    url: 'https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people/{{bundle.inputData.id_value}}/people',
+    url: 'https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people/{{bundle.inputData.id_value}}',
     method: 'GET',
     params: {
       detail: 'full',
@@ -10,11 +11,7 @@ const findPeople = async (z, bundle) => {
   if (response.status_code === 404) {
     return []
   }
-  if (response.data && response.data.people && response.data.people.records) {
-    return response.data.people.records
-  } else {
-    return []
-  }
+  return [formatDateFieldsInCreateResponse(response.json.data.person)]
 }
 
 module.exports = {
@@ -32,7 +29,7 @@ module.exports = {
     inputFields: [
       {
         key: 'id_value',
-        label: 'Search Key',
+        label: 'Search Value',
         helpText:
           'A unique identifier for the person, one of:\n\n1. Unique Clockwork internal integer identifier of a person\n1. Email address of person\n1. URL of LinkedIn profile page for person\n1. External reference key from another system, prefixed with "REF-".',
         type: 'string',
