@@ -8,18 +8,6 @@ const getAttachment = async (z, bundle) => {
   return response
 }
 
-const getPerson = async (z, bundle) => {
-  let response = await z.request({
-    url: 'https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people/{{bundle.inputData.person_id}}',
-    method: 'GET',
-    params: {
-      detail: 'full'
-    }
-  })
-
-  return response
-}
-
 const addAttachment = async (z, bundle) => {
   let response = await getAttachment(z, bundle)
   var contentType = response.getHeader('content-type')
