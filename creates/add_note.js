@@ -1,4 +1,4 @@
-const {formatDateFieldsInCreateResponse, getFullDetialPerson} = require('../supporting_functions.js')
+const {formatResponse, getFullDetialPerson} = require('../supporting_functions.js')
 
 const addNoteToPerson = async (z, bundle) => {
   let data = {
@@ -22,7 +22,7 @@ const addNoteToPerson = async (z, bundle) => {
   let id = response.json.data.person.id
 
   let personResponse = await getFullDetialPerson(z, bundle, id)
-  return formatDateFieldsInCreateResponse(personResponse)
+  return formatResponse(personResponse)
 }
 // you need to define the fields for this it is taken from add attachment.
 

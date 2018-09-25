@@ -1,4 +1,4 @@
-const {formatDateFieldsInCreateResponse, getFullDetialPerson} = require('../supporting_functions.js')
+const {formatResponse, getFullDetialPerson} = require('../supporting_functions.js')
 const getAttachment = async (z, bundle) => {
   let response = await z.request({
     url: bundle.inputData.url,
@@ -45,7 +45,7 @@ const addAttachment = async (z, bundle) => {
   let id = finalResponse.json.data.person.id
 
   let responsePerson = await getFullDetialPerson(z, bundle, id)
-  return formatDateFieldsInCreateResponse(responsePerson)
+  return formatResponse(responsePerson)
 }
 
 module.exports = {

@@ -1,5 +1,5 @@
 const _ = require('underscore')
-const {formatDateFieldsInCreateResponse, getFullDetialPerson, searchPerson} = require('../supporting_functions.js')
+const {formatResponse, getFullDetialPerson, searchPerson} = require('../supporting_functions.js')
 
 const createPerson = async (z, bundle) => {
   let body = JSON.parse(JSON.stringify(bundle.inputData))
@@ -115,7 +115,7 @@ const createPerson = async (z, bundle) => {
   let id = response.json.data.person.id
 
   let fullDetailResponse = await getFullDetialPerson(z, bundle, id)
-  return formatDateFieldsInCreateResponse(fullDetailResponse)
+  return formatResponse(fullDetailResponse)
 }
 
 module.exports = {

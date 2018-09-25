@@ -1,4 +1,4 @@
-const {formatDateFieldsInCreateResponse} = require('../supporting_functions.js')
+const {formatResponse} = require('../supporting_functions.js')
 const findPeople = async (z, bundle) => {
   let response = await z.request({
     url: 'https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people/{{bundle.inputData.id_value}}',
@@ -11,7 +11,7 @@ const findPeople = async (z, bundle) => {
   if (response.status_code === 404) {
     return []
   }
-  return [formatDateFieldsInCreateResponse(response.json.data.person)]
+  return [formatResponse(response.json.data.person)]
 }
 
 module.exports = {

@@ -1,3 +1,5 @@
+const {formatResponse} = require('../supporting_functions.js')
+const _ = require('underscore')
 const getLoadedPeople = async (z, bundle) => {
   let response = await z.request({
     url: 'https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people',
@@ -7,8 +9,11 @@ const getLoadedPeople = async (z, bundle) => {
       sort: '-loadedAt'
     }
   })
-  if (response.data && response.data.people && response.data.people.records) {
-    return response.data.people.records
+  if (response.json.data && response.json.data.people && response.json.data.people.records) {
+    let mappedResponse = _.map(response.json.data.people.records, (record) => {
+      return formatResponse(record)
+    })
+    return mappedResponse
   } else {
     return []
   }

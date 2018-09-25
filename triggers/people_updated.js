@@ -1,3 +1,4 @@
+const {formatResponse} = require('../supporting_functions.js')
 const _ = require('underscore')
 
 const getUpdatedPeople = async (z, bundle) => {
@@ -9,14 +10,14 @@ const getUpdatedPeople = async (z, bundle) => {
       sort: '-updatedAt'
     }
   })
-  let people = response.data.people.records
-  let mappedResponse = _.map(people, (person) => {
-    person.contactId = person.id
-    person.id = person.id + person.updatedAt
-    return person
-  })
-
-  return mappedResponse
+  if (response.json.data && response.json.data.people && response.json.data.people.records) {
+    let mappedResponse = _.map(response.json.data.people.records, (record) => {
+      return formatResponse(record)
+    })
+    return mappedResponse
+  } else {
+    return []
+  }
 }
 
 module.exports = {
