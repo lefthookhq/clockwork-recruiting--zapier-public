@@ -1,7 +1,7 @@
 const moment = require('moment')
 const _ = require('underscore')
 
-const formatDateFieldsInCreateResponse = (response) => {
+const formatResponse = (response) => {
   let newResponse = JSON.parse(JSON.stringify(response))
   newResponse.loadedAt = moment.unix(newResponse.loadedAt).format()
   newResponse.createdAt = moment.unix(newResponse.createdAt).format()
@@ -62,7 +62,7 @@ const searchPerson = async (z, bundle) => {
 }
 
 module.exports = {
-  formatDateFieldsInCreateResponse: formatDateFieldsInCreateResponse,
+  formatResponse: formatResponse,
   formatDateFieldsInSubObjectArray: formatDateFieldsInSubObjectArray,
   getFullDetialPerson: getFullDetialPerson,
   searchPerson: searchPerson
