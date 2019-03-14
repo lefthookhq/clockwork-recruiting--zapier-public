@@ -11,9 +11,9 @@ const CreatepersonCreate = require('./creates/create_person')
 const CreatepersonbasicCreate = require('./creates/create_person_basic')
 
 const formatForClockwork = (request, z, bundle) => {
-  request.headers['X-Api-Key'] = '44OUQAAP5u42jmj7huAjG9IkkAhFx9H6XxV2B9K7'
-  request.headers.authorization = `bearer ${bundle.authData.sessionKey}`
-  request.url = request.url.replace('{bundle.authData.firm_subdomain}', bundle.authData.firm_subdomain || 'account')
+  request.headers['X-Api-Key'] = "s8WRJ1G1GW5vUie2SCj8f3E9Ljy4POL960dKV7q8"  //'44OUQAAP5u42jmj7huAjG9IkkAhFx9H6XxV2B9K7' old api key
+  //request.headers.authorization = `bearer ${bundle.authData.sessionKey}`
+  //request.url = request.url.replace('{bundle.authData.firm_subdomain}', bundle.authData.firm_subdomain || 'account')
   return request
 }
 

@@ -25,7 +25,7 @@ const addAttachment = async (z, bundle) => {
   person.attachments = [attachment]
 
   let finalResponse = await z.request({
-    url: 'https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people/{{bundle.inputData.person_id}}',
+    url: `https://api.clockworkrecruiting.com/v1/${bundle.authData.firm_subdomain}/people/${bundle.inputData.person_id}`,
     method: 'POST',
     json: person
   })

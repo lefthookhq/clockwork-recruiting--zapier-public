@@ -37,7 +37,7 @@ const createPerson = async (z, bundle) => {
     body.addresses = addresses
   }
   let finalBody = _.omit(body, ['address_city', 'address_country', 'update_create', 'address_location', 'address_postal_code', 'address_state', 'address_street2', 'address_street'])
-  let url = 'https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people'
+  let url = `https://api.clockworkrecruiting.com/v1/${bundle.authData.firm_subdomain}/people`
   let search = await searchPerson(z, bundle)
   if (search.status === 200 && bundle.inputData.update_create === true) {
     url += '/' + search.json.data.person.id

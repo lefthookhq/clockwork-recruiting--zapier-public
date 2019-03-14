@@ -1,6 +1,6 @@
 const getTimeStamp = async (z, bundle) => {
   let response = await z.request({
-    url: 'https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/support/timestamp',
+    url: `https://api.clockworkrecruiting.com/v1/${bundle.authData.firm_subdomain}/support/timestamp`,
     method: 'GET'
   })
   return {id: 'ok'}

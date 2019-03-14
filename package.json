@@ -1,6 +1,6 @@
 {
   "name": "clockwork-recruiting",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Clockwork Recruiting executive search software provides the tools you need to place candidates faster.",
   "main": "index.js",
   "scripts": {

@@ -7,6 +7,8 @@ const testAuth = async (z, bundle) => {
   return {id: 'ok'}
 }
 const getSessionKey = async (z, bundle) => {
+  
+  z.console.log(JSON.stringify(bundle.authData));
   const response = await z.request({
     method: 'POST',
     url: 'https://api.clockworkrecruiting.com/v1/lefthook/oauth/token',
