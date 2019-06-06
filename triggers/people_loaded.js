@@ -2,7 +2,7 @@ const {formatResponse} = require('../supporting_functions.js')
 const _ = require('underscore')
 const getLoadedPeople = async (z, bundle) => {
   let response = await z.request({
-    url: 'https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people',
+    url: 'https://api.clockworkrecruiting.com/v1/{{bundle.authData.firm_subdomain}}/people',
     method: 'GET',
     params: {
       detail: 'full',

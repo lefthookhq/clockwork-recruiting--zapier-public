@@ -1,6 +1,6 @@
 // Created by 'zapier convert'. This is just a stub - you will need to edit!
 
-const authentication = require('./authentication')
+const authentication = require('./auth2')
 const PeopleloadedTrigger = require('./triggers/people_loaded')
 const PeopleupdatedTrigger = require('./triggers/people_updated')
 const TimestampTrigger = require('./triggers/timestamp')
@@ -11,10 +11,14 @@ const CreatepersonCreate = require('./creates/create_person')
 const CreatepersonbasicCreate = require('./creates/create_person_basic')
 
 const formatForClockwork = (request, z, bundle) => {
-  request.headers['X-Api-Key'] = '44OUQAAP5u42jmj7huAjG9IkkAhFx9H6XxV2B9K7'
-  request.headers.authorization = `bearer ${bundle.authData.sessionKey}`
-  request.url = request.url.replace('{bundle.authData.firm_subdomain}', bundle.authData.firm_subdomain || 'account')
-  return request
+  if (!request.url.includes("/oauth/token") && !request.url.includes("/oauth/authorize") ) {
+    request.headers.Authorization = `bearer ${bundle.authData.access_token}`;
+    request.headers['content-type'] = 'application/json';
+    request.headers['X-API-KEY'] = process.env.API_KEY;
+    return request;
+  } else {
+    return request;
+  }
 }
 
 const checkForError = (response, z, bundle) => {
@@ -28,23 +32,16 @@ const checkForError = (response, z, bundle) => {
   return response
 }
 
-const refreshAuth = (response, z, bundle) => {
-  if (response.status === 401 && bundle.authData.sessionKey) {
-    throw new z.errors.RefreshAuthError()
-  }
-  return response
-}
 // after app to look for error codes and format.
 const App = {
   version: require('./package.json').version,
   platformVersion: require('zapier-platform-core').version,
 
-  authentication,
+  authentication: authentication,
 
   beforeRequest: [formatForClockwork],
 
   afterResponse: [
-    refreshAuth,
     checkForError
   ],
 

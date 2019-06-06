@@ -95,7 +95,7 @@ const createPerson = async (z, bundle) => {
     body.addresses = addresses
   }
 
-  let url = 'https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people'
+  let url = `https://api.clockworkrecruiting.com/v1/{{bundle.authData.firm_subdomain}}/people`;
   let search = await searchPerson(z, bundle)
   // may not throw the correct error.
   if (search.status === 200 && bundle.inputData.update_create === true) {

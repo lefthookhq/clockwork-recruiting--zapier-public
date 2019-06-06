@@ -3,7 +3,7 @@ const _ = require('underscore')
 
 const getUpdatedPeople = async (z, bundle) => {
   let response = await z.request({
-    url: 'https://api.clockworkrecruiting.com/v1/{bundle.authData.firm_subdomain}/people',
+    url: 'https://api.clockworkrecruiting.com/v1/{{bundle.authData.firm_subdomain}}/people',
     method: 'GET',
     params: {
       detail: 'full',
@@ -19,11 +19,11 @@ const getUpdatedPeople = async (z, bundle) => {
       }
       return formatResponse(record)
     })
-    await z.request({
-      url: 'https://lefthook-requestbin.herokuapp.com/1iqebsq1',
-      method: 'POST',
-      json: mappedResponse
-    })
+    // await z.request({
+    //   url: 'https://lefthook-requestbin.herokuapp.com/1iqebsq1',
+    //   method: 'POST',
+    //   json: mappedResponse
+    // })
     return mappedResponse
   } else {
     return []
