@@ -1,35 +1,35 @@
 {
   "name": "clockwork-recruiting",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Clockwork Recruiting executive search software provides the tools you need to place candidates faster.",
   "main": "index.js",
   "scripts": {
     "test": "node node_modules/mocha/bin/mocha --recursive -t 10000"
   },
   "engines": {
-    "node": "10.9.0",
+    "node": "10.0.0",
     "npm": "6.9.0"
   },
   "dependencies": {
-    "ajv": "^6.10.0",
-    "async": "2.5.0",
-    "lodash": "^4.17.11",
-    "moment": "^2.22.2",
-    "moment-timezone": "0.5.13",
+    "ajv": "^6.10.2",
+    "async": "3.1.0",
+    "lodash": "^4.17.15",
+    "moment": "^2.24.0",
+    "moment-timezone": "0.5.27",
     "underscore": "^1.9.1",
     "xmldom": "0.1.27",
-    "zapier-platform-cli": "8.2.0",
-    "zapier-platform-core": "8.2.0"
+    "zapier-platform-cli": "9.0.0",
+    "zapier-platform-core": "9.0.0"
   },
   "devDependencies": {
-    "eslint": "^5.16.0",
-    "eslint-config-standard": "^11.0.0",
-    "eslint-plugin-import": "^2.14.0",
-    "eslint-plugin-node": "^7.0.1",
-    "eslint-plugin-promise": "^3.8.0",
-    "eslint-plugin-standard": "^3.1.0",
-    "mocha": "4.0.1",
-    "should": "13.1.2"
+    "eslint": "^6.7.1",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-node": "^10.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "mocha": "6.2.2",
+    "should": "13.2.3"
   },
   "private": true,
   "zapier": {
