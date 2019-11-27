@@ -1,4 +1,4 @@
-# Clockwork Zapier App
+# Clockwork Recruiting Zapier App
 
 Clockwork Recruiting executive search software provides the tools you need to place candidates faster.
 
@@ -53,6 +53,7 @@ Clockwork Recruiting executive search software provides the tools you need to pl
     - :beetle: Added dynamic dropdown to "person_id"
     - Changed noun from 'Add_attachment' to 'Note"
     - Refactored choices
+- Renamed repo
 
 ### Added
 
