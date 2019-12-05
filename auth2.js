@@ -68,10 +68,7 @@ const refreshAccessToken = async (z, bundle) => {
 };
 
 const testAuth = async (z, bundle) => {
-	let response = await z.request({
-		url: 'https://api.clockworkrecruiting.com/v1/{{bundle.authData.firm_subdomain}}/support/timestamp',
-		method: 'GET',
-	});
+	let response = await z.request('https://api.clockworkrecruiting.com/v1/{{bundle.authData.firm_subdomain}}/support/timestamp');
 	if (response.status !== 200) {
 		throw new Error('Auth Test Failed: ' + response.content);
 	}
