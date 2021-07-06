@@ -1,25 +1,27 @@
 {
-  "name": "clockwork-recruiting",
-  "version": "1.0.1",
+  "name": "clockwork-recruiting--zapier-public",
+  "version": "1.0.2",
+  "repository": "https://github.com/lefthookdigital/clockwork-recruiting--zapier-public",
   "description": "Clockwork Recruiting executive search software provides the tools you need to place candidates faster.",
   "main": "index.js",
   "scripts": {
     "test": "node node_modules/mocha/bin/mocha --recursive -t 10000"
   },
   "engines": {
-    "node": "10.9.0",
-    "npm": "6.9.0"
+    "node": "10.0.0",
+    "npm": ">=5.6.0"
   },
   "dependencies": {
     "ajv": "^6.10.0",
     "async": "2.5.0",
+    "dotenv": "^8.2.0",
     "lodash": "^4.17.11",
     "moment": "^2.22.2",
     "moment-timezone": "0.5.13",
     "underscore": "^1.9.1",
     "xmldom": "0.1.27",
-    "zapier-platform-cli": "8.2.0",
-    "zapier-platform-core": "8.2.0"
+    "zapier-platform-cli": "9.0.0",
+    "zapier-platform-core": "9.0.0"
   },
   "devDependencies": {
     "eslint": "^5.16.0",
